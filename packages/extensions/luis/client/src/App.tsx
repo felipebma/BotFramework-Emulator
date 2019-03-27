@@ -249,8 +249,16 @@ export class App extends Component<any, AppState> {
       try {
         const appInfo = await this.luisclient.getApplicationInfo();
         this.setState({ appInfo });
-        const intentInfo = await this.luisclient.getApplicationIntents(appInfo);
-        this.setState({ intentInfo });
+        if (appInfo.authorized) {
+          const intentInfo = await this.luisclient.getApplicationIntents(appInfo);
+          this.setState({ intentInfo });
+        } else {
+          this.setState({ intentInfo: [] });
+          throw new Error(
+            `Unauthorized: The current bot is not configured properly to interact with LUIS App Id: ${appInfo.appId}.
+             Please add a LUIS service connection to your bot file via the services pane.`
+          );
+        }
       } catch (err) {
         $host.logger.error(err.message);
       }
